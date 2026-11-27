@@ -33,6 +33,8 @@ jobs:
         run: |
           node scss-types.js || true
           pnpm exec vite build --base=/tweb/
+          # Copy fonts, icons and public assets to dist
+          cp -rn public/* dist/ || true
 
       - name: Deploy to gh-pages branch
         uses: peaceiris/actions-gh-pages@v4
