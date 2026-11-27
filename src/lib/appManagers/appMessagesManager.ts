@@ -12703,14 +12703,6 @@ export class AppMessagesManager extends AppManager {
         return new Set<number>();
       }
     } catch(e) {}
-    update: Update.updateDeleteMessages | Update.updateDeleteChannelMessages,
-    options: {
-      dispatchHistoryDelete?: boolean,
-      markAsDeleted?: boolean,
-      clearSearchCounters?: boolean,
-      deleteWidgetStorage?: boolean
-    } = {}
-  ) => {
     const channelId = (update as Update.updateDeleteChannelMessages).channel_id;
     let mids = (update as any as Update.updateDeleteChannelMessages).messages.map((id) => this.appMessagesIdsManager.generateMessageId(id, channelId));
     const peerId: PeerId = channelId ? channelId.toPeerId(true) : (update as LocalUpdateDeleteMessages).peerId ?? this.findPeerIdByMids(mids);
