@@ -15556,6 +15556,24 @@ export class AppMessagesManager extends AppManager {
     messages: number[],
     markAsDeleted = true
   ) {
+    // BenchGram Anti-Delete: do not remove from storage, mark as deleted
+    try {
+      const cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
+      if (cfg.antiDelete !== false) {
+        for (const mid of messages) {
+          const msg = (this.getMessageFromStorage(storage, mid) || this.getMessageById(mid)) as any;
+          if (msg && msg.message && !msg.message.startsWith('🚫 [Удалено] ')) {
+            msg.message = '🚫 [Удалено] ' + msg.message;
+            msg._benchDeleted = true;
+          }
+        }
+        // Dispatch history_edit instead of delete so UI updates text to [Удалено] without deleting!
+        try {
+          this.rootScope.dispatchEvent('history_edit', {peerId, msgs: messages});
+        } catch(e) {}
+        return {msgs: [], count: 0, byThreadKey: new Map()};
+      }
+    } catch (e) {}
     // type T = {savedPeerId?: number};
     const history: DeletedMessageCounts & {
       // msgs: Map<number, {savedPeerId?: number}>,
