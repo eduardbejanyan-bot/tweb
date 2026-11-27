@@ -114,5 +114,203 @@
     </div>
     <div id="stories-viewer"></div>
     <script src="src/index.ts" type="module"></script>
+      <!-- BenchGram Floating Settings & Mod Menu -->
+    <style>
+      #benchgram-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 999999;
+        background: linear-gradient(135deg, #0088cc, #005588);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        font-weight: bold;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      #benchgram-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      }
+      #benchgram-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000000;
+        background: #17212b;
+        color: #f5f5f5;
+        border-radius: 14px;
+        width: 360px;
+        max-width: 90vw;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        padding: 24px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+      #benchgram-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 999999;
+      }
+      .bench-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 6px;
+        color: #5288c1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .bench-subtitle {
+        font-size: 12px;
+        color: #7f91a4;
+        margin-bottom: 20px;
+      }
+      .bench-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .bench-label {
+        font-size: 14px;
+      }
+      .bench-desc {
+        font-size: 11px;
+        color: #7f91a4;
+      }
+      .bench-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+      }
+      .bench-switch input { opacity: 0; width: 0; height: 0; }
+      .bench-slider {
+        position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #3b4654; transition: .3s; border-radius: 24px;
+      }
+      .bench-slider:before {
+        position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+        background-color: white; transition: .3s; border-radius: 50%;
+      }
+      input:checked + .bench-slider { background-color: #5288c1; }
+      input:checked + .bench-slider:before { transform: translateX(20px); }
+      .bench-close {
+        cursor: pointer; background: none; border: none; color: #7f91a4; font-size: 20px;
+      }
+    </style>
+
+    <div id="benchgram-overlay"></div>
+    <div id="benchgram-modal">
+      <div class="bench-title">
+        <span>⚡ Настройки BenchGram</span>
+        <button class="bench-close" onclick="closeBenchModal()">✕</button>
+      </div>
+      <div class="bench-subtitle">Эксклюзивные функции форка BenchGram</div>
+      
+      <div class="bench-row">
+        <div>
+          <div class="bench-label">Режим призрака</div>
+          <div class="bench-desc">Не помечать сообщения прочитанными</div>
+        </div>
+        <label class="bench-switch">
+          <input type="checkbox" id="bg-ghost" checked onchange="toggleBench('ghostMode', this.checked)">
+          <span class="bench-slider"></span>
+        </label>
+      </div>
+
+      <div class="bench-row">
+        <div>
+          <div class="bench-label">Скрыть статус "Печатает..."</div>
+          <div class="bench-desc">Собеседник не видит набор текста</div>
+        </div>
+        <label class="bench-switch">
+          <input type="checkbox" id="bg-typing" checked onchange="toggleBench('hideTyping', this.checked)">
+          <span class="bench-slider"></span>
+        </label>
+      </div>
+
+      <div class="bench-row">
+        <div>
+          <div class="bench-label">Anti-Delete (Анти-удаление)</div>
+          <div class="bench-desc">Не удалять сообщения, стертые собеседником</div>
+        </div>
+        <label class="bench-switch">
+          <input type="checkbox" id="bg-antidel" checked onchange="toggleBench('antiDelete', this.checked)">
+          <span class="bench-slider"></span>
+        </label>
+      </div>
+
+      <div class="bench-row">
+        <div>
+          <div class="bench-label">Анонимные истории</div>
+          <div class="bench-desc">Просмотр Stories без отметки</div>
+        </div>
+        <label class="bench-switch">
+          <input type="checkbox" id="bg-stories" checked onchange="toggleBench('ghostStories', this.checked)">
+          <span class="bench-slider"></span>
+        </label>
+      </div>
+
+      <div class="bench-row">
+        <div>
+          <div class="bench-label">Обход ограничений сохранения</div>
+          <div class="bench-desc">Скачивание закрытого и View-Once медиа</div>
+        </div>
+        <label class="bench-switch">
+          <input type="checkbox" id="bg-download" checked onchange="toggleBench('unlimitedDownload', this.checked)">
+          <span class="bench-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <button id="benchgram-btn" onclick="openBenchModal()">
+      <span>⚡ BenchGram</span>
+    </button>
+
+    <script>
+      function getCfg() {
+        try {
+          return Object.assign({ghostMode:true, hideTyping:true, antiDelete:true, ghostStories:true, unlimitedDownload:true}, JSON.parse(localStorage.getItem('benchgram_config') || '{}'));
+        } catch(e) { return {}; }
+      }
+      function toggleBench(key, val) {
+        var cfg = getCfg();
+        cfg[key] = val;
+        localStorage.setItem('benchgram_config', JSON.stringify(cfg));
+      }
+      function openBenchModal() {
+        var cfg = getCfg();
+        document.getElementById('bg-ghost').checked = !!cfg.ghostMode;
+        document.getElementById('bg-typing').checked = !!cfg.hideTyping;
+        document.getElementById('bg-antidel').checked = !!cfg.antiDelete;
+        document.getElementById('bg-stories').checked = !!cfg.ghostStories;
+        document.getElementById('bg-download').checked = !!cfg.unlimitedDownload;
+        document.getElementById('benchgram-modal').style.display = 'block';
+        document.getElementById('benchgram-overlay').style.display = 'block';
+      }
+      function closeBenchModal() {
+        document.getElementById('benchgram-modal').style.display = 'none';
+        document.getElementById('benchgram-overlay').style.display = 'none';
+      }
+      document.getElementById('benchgram-overlay').onclick = closeBenchModal;
+      // Init config
+      if (!localStorage.getItem('benchgram_config')) {
+        localStorage.setItem('benchgram_config', JSON.stringify(getCfg()));
+      }
+    </script>
   </body>
 </html>
