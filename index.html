@@ -126,7 +126,7 @@
             if (cfg.antiDelete === false) return false;
             if (!el || !el.classList) return false;
             // Check if element is a chat bubble or message container
-            if (el.classList.contains('bubble') || el.classList.contains('bubble-outer') || el.hasAttribute('data-mid') || el.classList.contains('is-in')) {
+            if (el.classList.contains('bubble') || el.classList.contains('bubble-outer') || el.classList.contains('bubbles-group') || el.hasAttribute('data-mid') || el.classList.contains('is-in')) {
               return true;
             }
           } catch(e) {}
@@ -377,7 +377,7 @@
             if (cfg.antiDelete === false) return false;
             if (!el || !el.classList) return false;
             // Check if element is a chat bubble or message container
-            if (el.classList.contains('bubble') || el.classList.contains('bubble-outer') || el.hasAttribute('data-mid') || el.classList.contains('is-in')) {
+            if (el.classList.contains('bubble') || el.classList.contains('bubble-outer') || el.classList.contains('bubbles-group') || el.hasAttribute('data-mid') || el.classList.contains('is-in')) {
               return true;
             }
           } catch(e) {}
