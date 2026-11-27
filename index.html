@@ -1,6 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- BenchGram Anti-Cache & Bulletproof Anti-Delete -->
+    <script>
+      // 1. Force unregister service workers to avoid stale bundles
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (var i = 0; i < registrations.length; i++) {
+            registrations[i].unregister();
+          }
+        });
+      }
+
+      // 2. Global Anti-Delete: Mutation Observer & Element Protector
+      (function() {
+        window.__preservedBubbles = new Map();
+
+        var origRemove = Element.prototype.remove;
+        var origRemoveChild = Node.prototype.removeChild;
+
+        function isProtected(el) {
+          if (!el || !el.classList) return false;
+          return el.classList.contains('bubble') || 
+                 el.classList.contains('bubbles-group') || 
+                 el.hasAttribute('data-mid') || 
+                 el.classList.contains('bubble-outer');
+        }
+
+        function markBubble(el) {
+          if (!el) return;
+          el.style.opacity = '0.75';
+          var textEl = el.querySelector('.message') || el;
+          if (textEl && !textEl.querySelector('.bg-del-flag')) {
+            var badge = document.createElement('span');
+            badge.className = 'bg-del-flag';
+            badge.textContent = ' 🚫 [Удалено]';
+            badge.style.cssText = 'color:#ff4757;font-weight:bold;font-size:12px;margin-left:6px;';
+            textEl.appendChild(badge);
+          }
+        }
+
+        Element.prototype.remove = function() {
+          if (isProtected(this)) {
+            markBubble(this);
+            return;
+          }
+          return origRemove.apply(this, arguments);
+        };
+
+        Node.prototype.removeChild = function(child) {
+          if (isProtected(child)) {
+            markBubble(child);
+            return child;
+          }
+          return origRemoveChild.apply(this, arguments);
+        };
+
+        // Safety net: if an element is somehow disconnected from DOM, re-attach it!
+        var observer = new MutationObserver(function(mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            var m = mutations[i];
+            for (var j = 0; j < m.removedNodes.length; j++) {
+              var node = m.removedNodes[j];
+              if (isProtected(node)) {
+                markBubble(node);
+                m.target.appendChild(node);
+              }
+            }
+          }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+          observer.observe(document.body, { childList: true, subtree: true });
+        });
+      })();
+    </script>
     <meta charset="utf-8" />
     <!-- What the page itself may load besides its own files: no remote images, media, fonts or style sheets, no form
     submissions, no plugins. Interactive widgets draw their DOM into this page (a shadow root per widget, their code
