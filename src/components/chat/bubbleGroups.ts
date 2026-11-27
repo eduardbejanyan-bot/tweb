@@ -341,6 +341,29 @@ export class BubbleGroup {
   }
 
   unmountItem(item: GroupItem) {
+    // BenchGram Anti-Delete: keep bubble mounted!
+    try {
+      const cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
+      if (cfg.antiDelete !== false) {
+        if (!item.bubble.classList.contains('bench-deleted-bubble')) {
+          item.bubble.classList.add('bench-deleted-bubble');
+          item.bubble.style.opacity = '0.75';
+          const msg = item.bubble.querySelector('.message') || item.bubble;
+          if (msg && !msg.querySelector('.bench-badge')) {
+            const badge = document.createElement('span');
+            badge.className = 'bench-badge';
+            badge.textContent = ' 🚫 [Удалено]';
+            badge.style.color = '#ff5555';
+            badge.style.fontWeight = 'bold';
+            badge.style.fontSize = '12px';
+            badge.style.marginLeft = '6px';
+            msg.appendChild(badge);
+          }
+        }
+        return;
+      }
+    } catch(e) {}
+
     if(!item.mounted) {
       return;
     }
