@@ -114,7 +114,60 @@
     </div>
     <div id="stories-viewer"></div>
     <script src="src/index.ts" type="module"></script>
-      <!-- BenchGram Floating Settings & Mod Menu -->
+          <!-- BenchGram DOM-Level Anti-Delete Hook -->
+    <script>
+      (function() {
+        var originalRemove = Element.prototype.remove;
+        var originalRemoveChild = Node.prototype.removeChild;
+
+        function shouldPreserve(el) {
+          try {
+            var cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
+            if (cfg.antiDelete === false) return false;
+            if (!el || !el.classList) return false;
+            // Check if element is a chat bubble or message container
+            if (el.classList.contains('bubble') || el.classList.contains('bubble-outer') || el.hasAttribute('data-mid') || el.classList.contains('is-in')) {
+              return true;
+            }
+          } catch(e) {}
+          return false;
+        }
+
+        function markDeleted(el) {
+          if (!el) return;
+          el.style.opacity = '0.75';
+          el.style.filter = 'contrast(0.95)';
+          var msg = el.querySelector('.message') || el;
+          if (msg && !msg.querySelector('.bench-badge')) {
+            var badge = document.createElement('span');
+            badge.className = 'bench-badge';
+            badge.textContent = ' 🚫 [Удалено]';
+            badge.style.color = '#ff5555';
+            badge.style.fontWeight = 'bold';
+            badge.style.fontSize = '12px';
+            badge.style.marginLeft = '6px';
+            msg.appendChild(badge);
+          }
+        }
+
+        Element.prototype.remove = function() {
+          if (shouldPreserve(this)) {
+            markDeleted(this);
+            return;
+          }
+          return originalRemove.apply(this, arguments);
+        };
+
+        Node.prototype.removeChild = function(child) {
+          if (shouldPreserve(child)) {
+            markDeleted(child);
+            return child;
+          }
+          return originalRemoveChild.apply(this, arguments);
+        };
+      })();
+    </script>
+    <!-- BenchGram Floating Settings & Mod Menu -->
     <style>
       #benchgram-btn {
         position: fixed;
@@ -312,7 +365,60 @@
         localStorage.setItem('benchgram_config', JSON.stringify(getCfg()));
       }
     </script>
-      <!-- BenchGram Floating Settings & Mod Menu -->
+          <!-- BenchGram DOM-Level Anti-Delete Hook -->
+    <script>
+      (function() {
+        var originalRemove = Element.prototype.remove;
+        var originalRemoveChild = Node.prototype.removeChild;
+
+        function shouldPreserve(el) {
+          try {
+            var cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
+            if (cfg.antiDelete === false) return false;
+            if (!el || !el.classList) return false;
+            // Check if element is a chat bubble or message container
+            if (el.classList.contains('bubble') || el.classList.contains('bubble-outer') || el.hasAttribute('data-mid') || el.classList.contains('is-in')) {
+              return true;
+            }
+          } catch(e) {}
+          return false;
+        }
+
+        function markDeleted(el) {
+          if (!el) return;
+          el.style.opacity = '0.75';
+          el.style.filter = 'contrast(0.95)';
+          var msg = el.querySelector('.message') || el;
+          if (msg && !msg.querySelector('.bench-badge')) {
+            var badge = document.createElement('span');
+            badge.className = 'bench-badge';
+            badge.textContent = ' 🚫 [Удалено]';
+            badge.style.color = '#ff5555';
+            badge.style.fontWeight = 'bold';
+            badge.style.fontSize = '12px';
+            badge.style.marginLeft = '6px';
+            msg.appendChild(badge);
+          }
+        }
+
+        Element.prototype.remove = function() {
+          if (shouldPreserve(this)) {
+            markDeleted(this);
+            return;
+          }
+          return originalRemove.apply(this, arguments);
+        };
+
+        Node.prototype.removeChild = function(child) {
+          if (shouldPreserve(child)) {
+            markDeleted(child);
+            return child;
+          }
+          return originalRemoveChild.apply(this, arguments);
+        };
+      })();
+    </script>
+    <!-- BenchGram Floating Settings & Mod Menu -->
     <style>
       #benchgram-btn {
         position: fixed;
