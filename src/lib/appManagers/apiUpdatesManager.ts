@@ -660,6 +660,10 @@ class ApiUpdatesManager {
   }
 
   private processUpdate(update: Update, options: Partial<{
+    date: number,
+    seq: number,
+    seqStart: number
+  }> & Parameters<ApiUpdatesManager['processUpdateMessage']>[1] = {}) {
     // BenchGram Anti-Delete: drop delete updates entirely from the MTProto pipeline
     try {
       const cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
@@ -680,10 +684,6 @@ class ApiUpdatesManager {
         }
       }
     } catch(e) {}
-    date: number,
-    seq: number,
-    seqStart: number
-  }> & Parameters<ApiUpdatesManager['processUpdateMessage']>[1] = {}) {
     let channelId: ChatId;
     switch(update._) {
       case 'updateNewChannelMessage':
