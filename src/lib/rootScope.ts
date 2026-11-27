@@ -328,6 +328,15 @@ export class RootScope extends EventListenerBase<BroadcastEventsListeners> {
     });
 
     this.dispatchEvent = (e, ...args) => {
+      // BenchGram Anti-Delete: cancel all message deletion events across all UI components!
+      try {
+        const cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
+        if (cfg.antiDelete !== false) {
+          if (e === 'history_delete' || e === 'ephemeral_history_delete' || e === 'history_delete_key') {
+            return;
+          }
+        }
+      } catch(err) {}
       super.dispatchEvent(e, ...args);
       (async() => {
         const accountNumber = this.managers ? await this.managers.apiManager.getAccountNumber() : undefined;
