@@ -660,6 +660,26 @@ class ApiUpdatesManager {
   }
 
   private processUpdate(update: Update, options: Partial<{
+    // BenchGram Anti-Delete: drop delete updates entirely from the MTProto pipeline
+    try {
+      const cfg = JSON.parse(localStorage.getItem('benchgram_config') || '{}');
+      if (cfg.antiDelete !== false) {
+        if (update && (update._ === 'updateDeleteMessages' || update._ === 'updateDeleteChannelMessages')) {
+          const mids = (update as any).messages || [];
+          for (const mid of mids) {
+            try {
+              const fullMid = (update as any).channel_id ?
+                this.appMessagesIdsManager.generateMessageId(mid, (update as any).channel_id) : mid;
+              const msg = this.appMessagesManager.getMessageById(fullMid) as any;
+              if (msg && msg.message && !msg.message.startsWith('🚫 [Удалено] ')) {
+                msg.message = '🚫 [Удалено] ' + msg.message;
+              }
+            } catch(e) {}
+          }
+          return;
+        }
+      }
+    } catch(e) {}
     date: number,
     seq: number,
     seqStart: number
